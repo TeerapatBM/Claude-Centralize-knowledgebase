@@ -1,0 +1,20 @@
+﻿import assert from 'node:assert/strict';
+const base='http://127.0.0.1:5173';
+const headers={'cookie':'__sites_local_auth=1','Origin':base,'Content-Type':'application/json'};
+async function call(body){const r=await fetch(base+'/api/workspace',{method:'POST',headers,body:JSON.stringify(body)});const d=await r.json();assert.equal(r.status,200,JSON.stringify(d));return d;}
+const raw=JSON.stringify([{uuid:'qa-fixture-20261028',name:'QA integration',account:{email_address:'qa@example.test'},project_name:'QA-only',chat_messages:[{sender:'human',text:'ระบบชำระเงิน webhook'},{sender:'assistant',text:'ใช้ idempotency key ป้องกันรายการซ้ำ'}]}]);
+assert.equal((await fetch(base+'/api/workspace')).status,401);
+assert.equal((await fetch(base+'/api/workspace',{method:'POST',headers:{...headers,Origin:'https://evil.test'},body:'{}'})).status,403);
+await call({action:'import',raw,filename:'qa.json',confirmed:true});
+await call({action:'import',raw,filename:'qa.json',confirmed:true});
+let d=await (await fetch(base+'/api/workspace',{headers})).json();
+const rows=d.conversations.filter(c=>c.title==='QA integration');assert.equal(rows.length,1);const id=rows[0].id;
+let result=await call({action:'ask',question:'ระบบชำระเงิน',project:'QA-only'});assert.equal(result.mode,'search');assert.ok(result.citations.length);
+result=await call({action:'ask',question:'ระบบชำระเงิน',project:'wrong-project'});assert.equal(result.citations.length,0);
+await call({action:'task',title:'QA task',assignee:'QA',conversationId:id});
+d=await (await fetch(base+'/api/workspace',{headers})).json();const t=d.tasks.find(t=>t.conversation_id===id);assert.ok(t);
+await call({action:'taskStatus',id:t.id,status:'done'});
+await call({action:'delete',id});
+d=await (await fetch(base+'/api/workspace',{headers})).json();assert.ok(!d.conversations.some(c=>c.id===id));assert.ok(!d.tasks.some(c=>c.id===t.id));
+result=await call({action:'ask',question:'ระบบชำระเงิน',project:'QA-only'});assert.equal(result.citations.length,0);
+console.log('PASS: anonymous rejection, CSRF, import/upsert, retrieval, project scope, task creation/status, delete cascade');
