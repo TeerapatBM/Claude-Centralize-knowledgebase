@@ -11,6 +11,7 @@ test('on-prem workspace: authenticated team sharing, ingestion, roles and local 
  async function request(path:string,body?:any,cookie='',origin=base,bearer=''){const r=await fetch(base+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Origin:origin,...(cookie?{Cookie:cookie}:{}),...(bearer?{Authorization:'Bearer '+bearer}:{})},body:body?JSON.stringify(body):undefined});return {status:r.status,body:await r.json() as any,cookie:(r.headers.get('set-cookie')||'').split(';')[0]};}
  try{
  assert.equal((await request('/api/workspace')).status,401);
+ assert.equal((await request('/api/auth/login',{username:'x'.repeat(5000),password:'wrong'})).status,413);
  assert.equal((await request('/api/auth/login',{username:'admin',password:'wrong'})).status,401);
  const admin=await request('/api/auth/login',{username:'admin',password:config.adminPassword});assert.equal(admin.status,200);assert.ok(admin.cookie);
  assert.equal((await request('/api/admin/users',{username:'alice',password:'alice-password-long-123'},admin.cookie,'https://evil.test')).status,403);
