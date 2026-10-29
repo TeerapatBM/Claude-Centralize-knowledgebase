@@ -534,3 +534,8 @@ OLLAMA_MODEL=qwen3:4b
 - [Node.js 24 SQLite API](https://nodejs.org/docs/latest-v24.x/api/sqlite.html)
 
 ตรวจเอกสารวันที่ 29 ตุลาคม 2026 รุ่นโมเดลและข้อกำหนดบริการอาจเปลี่ยน ควรตรวจอีกครั้งก่อน provision/upgrade จริง
+
+
+## Team login and Turnstile
+
+Anonymous visitors see Login before the workspace. Admins create team accounts in Settings; salted password hashes stay on the server. See [TEAM_LOGIN_AND_TURNSTILE.md](TEAM_LOGIN_AND_TURNSTILE.md) for Turnstile setup and a rollout that preserves existing CPU tuning.

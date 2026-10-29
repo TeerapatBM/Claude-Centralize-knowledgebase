@@ -1,0 +1,11 @@
+# Add this overlay AFTER compose.yaml when enabling Turnstile.
+services:
+  app:
+    environment:
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:?Set TURNSTILE_SITE_KEY}
+      TURNSTILE_SECRET_FILE: /run/secrets/turnstile_secret
+    secrets:
+      - turnstile_secret
+secrets:
+  turnstile_secret:
+    file: ./secrets/turnstile_secret.txt

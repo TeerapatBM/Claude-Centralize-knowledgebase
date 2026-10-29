@@ -1,5 +1,16 @@
 ﻿# Set the internal DNS name and server LAN IP before rollout.
-COMMONS_HOST=commons.company.internal
-BIND_IP=127.0.0.1
+COMMONS_HOST=cks.sysplatsec.dev
+BIND_IP=10.155.12.134
 ADMIN_USER=admin
-OLLAMA_MODEL=qwen3:4b
+OLLAMA_MODEL=qwen3:4b-instruct-2507-q4_K_M
+
+# Public Cloudflare Turnstile site key; required with compose.turnstile.yaml.
+# Configure a Managed widget for hostname cks.sysplatsec.dev.
+TURNSTILE_SITE_KEY=
+
+# Existing servers: preserve deployment/.env and merge new settings individually.
+# Private files (ignored by Git; provision separately on each server):
+# secrets/admin_password.txt : initial admin password, 12-128 characters
+# secrets/turnstile_secret.txt : Cloudflare Turnstile SECRET key
+# Both secret files: owner UID 1000 (container node user), mode 0600.
+# Create team accounts under Settings > Account; never embed their passwords.
