@@ -1,16 +1,18 @@
 ﻿'use client';
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {CheckCircle2,Copy,KeyRound,Link2,LoaderCircle,LogIn,LogOut,Palette,RefreshCw,Server,ShieldCheck,Users} from 'lucide-react';
 import {AppearancePanel} from './workspace-ui';
+import {createRequestGate} from '../lib/request-state';
 
 export default function WorkspaceSettings({appearance,apiKey,setApiKey,aiReady,deployment,authenticated,onAuthChange,activeTab,setActiveTab}:any){
  const [status,setStatus]=useState<any>(null),[users,setUsers]=useState<any[]>([]),[tokens,setTokens]=useState<any[]>([]),[newToken,setNewToken]=useState(''),[message,setMessage]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[memberName,setMemberName]=useState(''),[memberPassword,setMemberPassword]=useState(''),[label,setLabel]=useState(''),[disableId,setDisableId]=useState(''),[currentPassword,setCurrentPassword]=useState(''),[replacement,setReplacement]=useState('');
- const local=deployment==='onprem';
+ const local=deployment==='onprem';const actionLock=useRef(false);const accountGate=useRef(createRequestGate());
+ useEffect(()=>{accountGate.current.invalidate();if(!authenticated){setNewToken('');setTokens([]);setUsers([]);setStatus(null);setCurrentPassword('');setReplacement('');setMemberPassword('');setPassword('');}},[authenticated]);
  async function request(path:string,body?:any){const r=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined});const d:any=await r.json();if(!r.ok)throw Error(d.error||'ดำเนินการไม่สำเร็จ');return d;}
- async function refresh(){if(!local||!authenticated)return;const d=await request('/api/settings');setStatus(d);setTokens((await request('/api/tokens')).tokens);if(d.user.role==='admin')setUsers((await request('/api/admin/users')).users);}
+ async function refresh(){if(!local||!authenticated)return;const ticket=accountGate.current.begin();const d=await request('/api/settings'),t=await request('/api/tokens'),u=d.user.role==='admin'?await request('/api/admin/users'):{users:[]};if(!accountGate.current.isCurrent(ticket))return;setStatus(d);setTokens(t.tokens);setUsers(u.users);}
  useEffect(()=>{if(local&&authenticated){refresh().catch(e=>setError(e.message));}},[local,authenticated]);
- async function run(fn:()=>Promise<void>){setBusy(true);setMessage('');setError('');try{await fn();}catch(e:any){setError(e.message);}finally{setBusy(false);}}
+ async function run(fn:()=>Promise<void>){if(actionLock.current)return;actionLock.current=true;setBusy(true);setMessage('');setError('');try{await fn();}catch(e:any){setError(e.message);}finally{actionLock.current=false;setBusy(false);}}
  const tabs=[['appearance','หน้าตา',Palette],['ai','AI และเซิร์ฟเวอร์',Server],['integrations','เชื่อมต่อข้อมูล',Link2],['account','บัญชีและสมาชิก',Users]] as const;
  return <><div className="page-heading"><div><h1 tabIndex={-1}>Settings</h1><p>จัดการหน้าตา AI การรับข้อมูล และบัญชีจากที่เดียว</p></div><a className="button subtle" href="/docs/ON_PREM_DEPLOYMENT.md" download>ดาวน์โหลดคู่มือติดตั้ง .md</a></div><div className="settings-tabs">{tabs.map(([id,text,Icon])=><button key={id} aria-pressed={activeTab===id} onClick={()=>{setActiveTab(id);setError('');setMessage('');}}><Icon size={17}/>{text}</button>)}</div>{error&&<div className="banner error" role="alert">{error}</div>}{message&&<div className="banner" role="status"><CheckCircle2 size={17}/>{message}</div>}
  {local&&!authenticated&&<form className="panel settings-card login-card" onSubmit={e=>{e.preventDefault();run(async()=>{await request('/api/auth/login',{username,password});setPassword('');await onAuthChange();await refresh();setMessage('เข้าสู่ระบบแล้ว');});}}><h2><LogIn size={20}/>เข้าสู่ระบบบริษัท</h2><p>ใช้บัญชีที่ผู้ดูแล Commons สร้างให้ เป็นคนละบัญชีกับ Claude</p><label>ชื่อผู้ใช้<input required autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)}/></label><label>รหัสผ่าน<input required type="password" autoComplete="current-password" maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/></label><button className="button" disabled={busy}>{busy?<LoaderCircle size={16} className="spin"/>:<LogIn size={16}/>}เข้าสู่ระบบ</button></form>}
