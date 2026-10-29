@@ -1,0 +1,8 @@
+﻿{
+  "enabled": false,
+  "endpoint": "https://commons.company.internal",
+  "person": "alice@company.internal",
+  "tokenFile": "./collector.token",
+  "projects": [{"path": "/home/alice/work/approved-project", "name": "Approved project"}],
+  "transcriptRoots": ["/home/alice/.claude/projects"]
+}

@@ -1,0 +1,5 @@
+﻿# Set the internal DNS name and server LAN IP before rollout.
+COMMONS_HOST=commons.company.internal
+BIND_IP=127.0.0.1
+ADMIN_USER=admin
+OLLAMA_MODEL=qwen3:4b

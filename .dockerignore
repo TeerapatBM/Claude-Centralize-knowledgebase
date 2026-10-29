@@ -1,0 +1,16 @@
+﻿node_modules
+.git
+.openai
+.codex
+.agents
+.sites-runtime
+.wrangler
+dist
+onprem-dist
+onprem-data
+work
+outputs
+.env*
+.dev.vars*
+deployment/secrets
+*.tar.gz

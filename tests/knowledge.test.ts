@@ -14,7 +14,7 @@ test('repeat imports have stable ids; different people do not collide',()=>{
 });
 test('rejects unknown and malformed structured files',()=>{assert.throws(()=>parseImport('{','x.json',{}));assert.throws(()=>parseImport('{"no":"chat"}','x.json',{}));});
 test('ranks Thai content and excludes unrelated excerpts',()=>{
- const rows=[{text:'à¸§à¸²à¸‡à¹à¸œà¸™à¸£à¸°à¸šà¸šà¸Šà¸³à¸£à¸°à¹€à¸‡à¸´à¸™ à¸£à¸­à¸‡à¸£à¸±à¸šà¹‚à¸­à¸™à¹€à¸‡à¸´à¸™',id:'a'},{text:'à¹€à¸¥à¸·à¸­à¸à¸ªà¸µà¹‚à¸¥à¹‚à¸à¹‰',id:'b'}];assert.equal(rankChunks('à¸£à¸°à¸šà¸šà¸Šà¸³à¸£à¸°à¹€à¸‡à¸´à¸™',rows)[0].id,'a');assert.equal(rankChunks('kubernetes',rows).length,0);
+ const rows=[{text:'วางแผนระบบชำระเงิน รองรับโอนเงิน',id:'a'},{text:'เลือกสีโลโก้',id:'b'}];assert.equal(rankChunks('ระบบชำระเงิน',rows)[0].id,'a');assert.equal(rankChunks('kubernetes',rows).length,0);
 });
 test('authorization rejects anonymous and cross-origin mutation',()=>{
  assert.throws(()=>authorize(null,'https://evil.test','https://good.test',true));assert.throws(()=>authorize('a','https://evil.test','https://good.test',true));assert.equal(authorize('a','https://good.test','https://good.test',true),'a');

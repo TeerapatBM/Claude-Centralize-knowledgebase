@@ -1,53 +1,59 @@
-﻿# Claude Commons
+﻿# Commons
 
-เว็บส่วนตัวสำหรับ Organizer ของ Claude Team เพื่อรวมบทสนทนาของหลายคนเป็นคลังความรู้และต่อยอดเป็นงาน
+พื้นที่ความรู้จากบทสนทนาของทีม: นำเข้าข้อมูล ค้นหา ถาม AI พร้อมหลักฐาน และสร้างงานจากบริบท
 
-## ใช้งาน
-1. เข้าเว็บไซต์ด้วยบัญชีเจ้าของ Site (ระบบล็อกอินของ Sites ไม่ใช่ Claude OAuth)
-2. Primary Owner เปิด Claude → Organization settings → Data and privacy → Export Data
-3. ดาวน์โหลดจากอีเมล แตก ZIP แล้วเลือก JSON บทสนทนาที่หน้า นำเข้าและเชื่อมต่อ
-4. นำเข้า Claude Code JSONL หรือ TXT/MD เพิ่มได้ ระบุเจ้าของและโปรเจกต์เมื่อไฟล์ไม่มีข้อมูล
-5. ค้นคลังหรือถามความรู้ทีม ใส่ Anthropic API key ในหน้าตั้งค่า AI หากต้องการคำตอบสังเคราะห์
-6. เปิดบทสนทนาแล้วสร้างงาน มอบหมายชื่อผู้รับผิดชอบและเลื่อนสถานะได้ (ไม่ส่งการแจ้งเตือน)
+## เลือกการติดตั้ง
 
-## ขอบเขตที่ทำแล้ว
-- D1 persistence; owner-scoped access; same-origin mutation checks
-- JSON conversations/chat_messages/messages; JSONL sessions; TXT/Markdown
-- Upsert and transactional chunk replacement; delete cascades to derived chunks/tasks
-- Thai/English keyword retrieval, 12 evidence excerpts, optional Claude synthesis with citations
-- Project/person/source filters; usage totals only where present in imported Code records
-- Separate in-memory demo, never automatically seeded to production
+| แบบ | Identity / data | AI |
+|---|---|---|
+| Sites preview | บัญชีเจ้าของ Sites, D1 แยกเจ้าของ | ค้นข้อความ หรือ Anthropic key ที่ผู้ใช้ใส่ใน Settings |
+| On-premises | Node 24 + SQLite, admin/member, คลังร่วมของบริษัท | Ollama + Qwen3 4B บน CPU ไม่มี paid fallback |
 
-## ข้อจำกัด
-- ไม่มีการล็อกอิน Claude เพื่อดึง Team chats อัตโนมัติ ใช้ official export; Enterprise Compliance API ยังไม่ได้เชื่อม
-- Site ส่วนตัวสำหรับ Organizer ยังไม่มี shared member RBAC, invite, live collaboration, scheduled sync หรือ OTLP collector
-- ไม่มี fine-tuning/embedding semantic search; ค้นสูงสุด 6,000 chunks ล่าสุดต่อ scope
-- จำกัด 5 MB, 200 conversations, 1,500 chunks ต่อ import; บทสนทนาไม่เกิน 250,000 ตัวอักษร
-- ต้องแตก ZIP ก่อน; ไม่อ่านรูปภาพ PDF attachments หรือ tool payloads; project text ใช้ TXT/MD แยก
-- Unknown export shapes ถูกปฏิเสธ; ต้องตรวจ format กับ export จริงขององค์กรก่อน rollout
-- Export ไม่มี user/project metadata ต้องกรอกเอง; อาจเก็บ user UUID ถ้าไม่มี email
-- Id-less records use content identity; text edits create new records and 32-bit fallback hashes have a residual collision risk
-- ค่า tokens ไม่ใช่ billing; JSONL ที่มี duplicated streaming usage อาจนับซ้ำ ต้องตรวจ original usage format
-- AI needs paid Anthropic API access separately from Team subscription. No live AI call verified without credentials.
-- Documents are untrusted evidence; prompt tells model not to follow them. Review answers and citations.
+คู่มือ IT ภาษาไทย 500+ บรรทัด: [ON_PREM_DEPLOYMENT.md](ON_PREM_DEPLOYMENT.md) ครอบคลุม server requirements, ติดตั้ง, TLS, data flow, collectors, model setup, backup/restore, recovery และ acceptance checks
 
-## Development
-Node 24+, npm ci; npm run db:generate when schema changes; npm run build.
-Apply local migration:
-`node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_serious_weapon_omega.sql`
-`npm run dev -- --host 127.0.0.1`
-`node --test tests/knowledge.test.ts`
-`npx tsc --noEmit`
-Local sign-in is supplied by the starter. Production identity comes only from the Sites gateway. Do not expose the built Worker directly without this trusted gateway.
+## เริ่ม On-prem
 
-## Runtime secrets
-ANTHROPIC_API_KEY (optional, secret); ANTHROPIC_MODEL (default claude-sonnet-5-5). Configure hosted values through Sites environment settings. Alternatively, user enters a session-only key; stored only in React memory and sent over HTTPS with ask requests, never persisted.
+1. อ่านคู่มือและกำหนด LAN IP / DNS / certificate trust
+2. ตั้ง `deployment/.env` ตาม `deployment/environment.example` และ bootstrap password secret
+3. รัน Docker Compose ตามคู่มือและดาวน์โหลด `qwen3:4b` ลงเครื่องบริษัท
+4. Settings → บัญชีและสมาชิก เพื่อสร้างผู้ใช้
+5. นำเข้า official Claude export หรือเปิด opt-in Claude Code collector เฉพาะ project ที่อนุญาต
 
-## Official references checked 2026-10-28
-- https://support.claude.com/en/articles/13346720-export-your-organization-s-data
-- https://platform.claude.com/docs/en/manage-claude/compliance-api
-- https://platform.claude.com/docs/en/manage-claude/compliance-api-access
-- https://code.claude.com/docs/en/monitoring-usage
+```text
+npm ci
+npm run build:onprem
+npm run start:onprem
+```
 
-Frontend refresh: Light/Dark/System mode, 5 accent palettes, comfortable/compact density, saved device preferences, reduced motion controls, Ctrl/Cmd+K command search, Ctrl/Cmd+Enter ask, copy answers with citations, copy/download transcripts as Markdown, responsive bottom navigation, native accessible dialogs, skeleton loading and status toasts. Preferences contain no chat content or credentials.
+สำหรับ native start ต้องกำหนด PUBLIC_ORIGIN, ADMIN_PASSWORD_FILE และ OLLAMA_URL ก่อน ดูรายละเอียดในคู่มือ Backend ไม่มี npm runtime dependencies เพิ่ม; ใช้ Node.js 24 built-ins
 
+## Data connectors
+
+- Claude Team: Primary Owner export จาก Organization settings → Data and privacy แล้วแตก ZIP / นำเข้า JSON ตามต้องการ
+- Claude Code: `scripts/collectors/claude-code.mjs` แบบ Stop hook หรือ manual command พร้อม project/transcript allowlist และ ingestion token
+- AI ใช้ retrieval จากข้อความที่นำเข้า ไม่ fine-tune weights อัตโนมัติ
+- Claude.ai OAuth สำหรับแอปนี้ไม่รองรับตามข้อกำหนด Anthropic จึงไม่เก็บ session credentials หรือใช้ internal scraping APIs
+- Enterprise Compliance API เป็นทางเลือกที่ต้องประเมินแยก ยังไม่มี connector ในรุ่นนี้
+
+## Frontend
+
+Settings รวม Light/Dark/System, accent 5 สี, density, reduced motion, provider/integration/account controls เมนูลัด Ctrl/Cmd+K, ถามด้วย Ctrl/Cmd+Enter, copy answer+citation, Markdown transcript export, responsive navigation และ native modal dialogs
+
+## Tests และ builds
+
+```text
+npm test
+npx tsc --noEmit
+npm run build:onprem
+node <Sites-plugin>/scripts/build-site.mjs
+```
+
+Ollama adapter tests ใช้ local HTTP fixture; ไม่แทนการวัดคุณภาพ/ความเร็วของ model weights จริง Docker/TLS/company host ต้องทดสอบในสภาพแวดล้อมที่จะใช้งานก่อน rollout
+
+## Runtime boundaries
+
+On-prem เป็น shared workspace: ทุกสมาชิกที่เข้าสู่ระบบอ่านคลังรวมได้ Project เป็นตัวกรอง ไม่ใช่ ACL; ผู้นำเข้าหรือ admin เท่านั้นลบแชตได้ สมาชิกแก้สถานะงานร่วมกันได้ ไม่มี MFA/SSO/SCIM/HA หรือ embeddings index ในรุ่นนี้
+
+Default import limits: 5 MB, 200 conversations, 1,500 chunks ต่อครั้ง; 250,000 ตัวอักษรต่อ conversation; แตก ZIP เอง ไม่อ่านไฟล์แนบ/รูปภาพ/PDF ค้นสูงสุด 6,000 chunks ล่าสุดต่อ scope
+
+ห้ามเผยแพร่ Worker ของ Sites โดยไม่มี gateway identity ของ Sites และห้ามเอา Node on-prem data directory หรือ collector tokens เข้า Git ระบบ on-prem ใช้ HTTPS proxy + local cookie auth ของตัวเอง ไม่เชื่อ authenticated-user headers จาก client

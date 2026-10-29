@@ -43,3 +43,8 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
+
+/onprem-data/
+/onprem-dist/
+/deployment/secrets/
+/deployment/.env
