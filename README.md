@@ -48,3 +48,6 @@ ANTHROPIC_API_KEY (optional, secret); ANTHROPIC_MODEL (default claude-sonnet-5-5
 - https://platform.claude.com/docs/en/manage-claude/compliance-api
 - https://platform.claude.com/docs/en/manage-claude/compliance-api-access
 - https://code.claude.com/docs/en/monitoring-usage
+
+Frontend refresh: Light/Dark/System mode, 5 accent palettes, comfortable/compact density, saved device preferences, reduced motion controls, Ctrl/Cmd+K command search, Ctrl/Cmd+Enter ask, copy answers with citations, copy/download transcripts as Markdown, responsive bottom navigation, native accessible dialogs, skeleton loading and status toasts. Preferences contain no chat content or credentials.
+
