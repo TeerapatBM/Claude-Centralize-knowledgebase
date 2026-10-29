@@ -48,3 +48,7 @@ yarn-error.log*
 /onprem-dist/
 /deployment/secrets/
 /deployment/.env
+
+# Python deployment helper caches
+__pycache__/
+*.py[cod]

@@ -1,0 +1,2 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {translateUi} from '../lib/ui-translations.ts';
+test('language switch covers navigation and document chat without changing unknown user content',()=>{assert.equal(translateUi('ภาพรวม','en'),'Overview');assert.equal(translateUi('แชตกับ Veltrix','en'),'Chat with Veltrix');assert.equal(translateUi('แนบไฟล์','en'),'Attach files');assert.equal(translateUi('ภาพรวม','th'),'ภาพรวม');assert.equal(translateUi('ข้อความจากผู้ใช้ที่ไม่ได้อยู่ในพจนานุกรม','en'),'ข้อความจากผู้ใช้ที่ไม่ได้อยู่ในพจนานุกรม');});

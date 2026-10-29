@@ -5,4 +5,6 @@ import '../../app/globals.css';
 import '../../app/workspace.css';
 import '../../app/refinement.css';
 import '../../app/veltrix.css';
+import '../../app/select.css';
+import '../../app/chat-studio.css';
 createRoot(document.getElementById('root')!).render(<Home/>);

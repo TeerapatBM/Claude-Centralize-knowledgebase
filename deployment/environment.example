@@ -3,6 +3,8 @@ COMMONS_HOST=cks.sysplatsec.dev
 BIND_IP=10.155.12.134
 ADMIN_USER=admin
 OLLAMA_MODEL=qwen3:4b-instruct-2507-q4_K_M
+EVIDENCE_LIMIT=5
+NUM_PREDICT=512
 
 # Public Cloudflare Turnstile site key; required with compose.turnstile.yaml.
 # Configure a Managed widget for hostname cks.sysplatsec.dev.

@@ -539,3 +539,8 @@ OLLAMA_MODEL=qwen3:4b
 ## Team login and Turnstile
 
 Anonymous visitors see Login before the workspace. Admins create team accounts in Settings; salted password hashes stay on the server. See [TEAM_LOGIN_AND_TURNSTILE.md](TEAM_LOGIN_AND_TURNSTILE.md) for Turnstile setup and a rollout that preserves existing CPU tuning.
+
+
+## Assistant update: models, documents and languages
+
+See [ASSISTANT_MODELS_DOCUMENTS.md](ASSISTANT_MODELS_DOCUMENTS.md) for the new multi-provider chat, PDF/DOCX/text attachments, public links, themed dropdowns and Thai/English controls. For the existing server, use [UPDATE_ASSISTANT.md](UPDATE_ASSISTANT.md); it preserves the live environment, Turnstile secrets and CPU tuning and includes recovery.

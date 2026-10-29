@@ -9,7 +9,9 @@
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASSWORD_FILE: /run/secrets/admin_password
       OLLAMA_URL: http://ollama:11434
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b-instruct-2507-q4_K_M}
+      EVIDENCE_LIMIT: ${EVIDENCE_LIMIT:-8}
+      NUM_PREDICT: ${NUM_PREDICT:-1024}
     secrets:
       - admin_password
     volumes:
