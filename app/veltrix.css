@@ -1,4 +1,7 @@
 /* Veltrix: the ribbon, the light, and a quiet place to think. */
+@font-face {font-family:Mitr;src:url('/fonts/Mitr-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face {font-family:Mitr;src:url('/fonts/Mitr-Medium.ttf') format('truetype');font-style:normal;font-weight:500;font-display:swap}
+@font-face {font-family:Mitr;src:url('/fonts/Mitr-SemiBold.ttf') format('truetype');font-style:normal;font-weight:600;font-display:swap}
 :root:root {
  --vx-violet:#a65bff; --vx-blue:#235bff; --vx-cyan:#00dcf5;
  --vx-gradient:linear-gradient(115deg,#9445ef 0%,#4149e8 51%,#087fae 100%);
@@ -260,3 +263,29 @@ footer {display:flex;align-items:center;gap:10px;padding:20px 37px;font-size:10p
  .veltrix-login{grid-template-columns:1fr;min-height:100svh}.veltrix-login .login-story{min-height:0;padding:24px 27px 30px;border-right:0;border-bottom:1px solid #46316255}.login-story .veltrix-brand{gap:8px}.login-story .brand-type{font-size:27px}.login-story .veltrix-mark{width:41px;height:41px}.login-story-copy{margin-top:30px}.login-story-copy h1{font-size:32px;line-height:1.5;margin:9px 0 0;max-width:none}.login-story-copy p,.login-art,.login-foot{display:none}.login-story-copy .eyebrow{font-size:9px}.login-form-side{padding:35px 27px 75px}.login-card{max-width:420px}.login-emblem{display:none}.login-card h2{font-size:26px}.login-card>p{font-size:12px;margin-bottom:23px}.login-card input{font-size:14px!important;min-height:49px!important}.login-card label{font-size:12px}.login-bottom{bottom:23px;font-size:9px}.login-card .eyebrow{font-size:10px}.login-help{font-size:10px}.login-submit{min-height:49px}.login-error{font-size:12px}
 }
 @media(max-width:370px) {nav button{font-size:7px}nav button>.veltrix-icon{width:21px;height:21px}.topbar{padding-inline:12px;gap:5px}main{padding-inline:14px}.hero-copy{padding:23px}.hero-copy h2{font-size:28px}.stat{padding:15px 12px;column-gap:8px}.stat>svg{width:20px;height:20px;padding:6px}.stat strong{font-size:26px}.stat span{font-size:8px}.setting-row{flex-wrap:wrap}.login-story-copy h1{font-size:29px}.login-form-side{padding-inline:22px}}
+
+/* Mitr reading system: natural Thai spacing, actual weights, room for vowels. */
+body {font-family:Mitr,sans-serif;font-weight:400;font-size:14px;line-height:1.95;letter-spacing:0;font-synthesis:none;font-feature-settings:normal}
+h1,h2,h3,h4,.hero-copy h2,.login-story-copy h1,.login-card h2,.assistant-welcome h2,.transcript-body>h2 {font-weight:500;letter-spacing:0;line-height:1.65}
+strong,b,.button,nav button.active,.settings-card h2,.conversation-name strong {font-weight:500}
+input,select,textarea,button {font-family:inherit;letter-spacing:0}
+.brand-type,.brand-sub {font-family:'Veltrix Latin',sans-serif}
+nav button {font-size:13px;font-weight:400}
+.page-heading p,.hero-copy p,.login-card>p,.settings-card p,.guide p,.guide ol,.empty p {font-size:13px;line-height:2}
+.conversation-name strong,.suggestions button {font-size:14px;line-height:1.9}
+.conversation-name small,.stat span,.row-source,.settings-list small,.setting-row p {font-size:11px;line-height:1.9}
+.answer-text,.transcript p {font-size:15px;line-height:2.1}
+.login-card label,.settings-card label,.field-grid label {font-size:13px;font-weight:400}
+.hero-prompt input {font-size:13px!important}
+.login-card input {font-size:14px!important}
+@media(max-width:700px) {
+ nav button {font-size:8px;line-height:1.65}
+ h1 {font-size:24px}.hero-copy h2 {font-size:29px}
+ .page-heading p,.hero-copy p,.login-card>p,.settings-card p,.guide p,.guide ol,.empty p {font-size:12px;line-height:2}
+ .conversation-name strong,.suggestions button {font-size:13px}
+ .conversation-name small,.stat span,.settings-list small,.setting-row p {font-size:10px}
+ .answer-text,.transcript p {font-size:14px;line-height:2.1}
+ .hero-prompt input {font-size:12px!important}
+ .settings-tabs button {font-size:11px}.login-story-copy h1 {font-size:30px}
+}
+@media(max-width:370px) {nav button{font-size:7px}.stat span{font-size:9px}.settings-tabs button{font-size:10px}.login-story-copy h1{font-size:28px}}
