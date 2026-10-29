@@ -28,3 +28,11 @@ python3 "$HELPER" --source "$SOURCE" --target "$TARGET_SHA" --apply
 ```
 
 The command intentionally has no `git pull`, stash pop, reset, broad environment dump, or destructive cleanup. If preflight rejects a working tree, inspect it manually and preserve the recovery artifacts rather than bypassing the checks.
+
+## Runtime permissions and activation diagnostics
+
+The backup writer creates individual recovery files with mode `0600` inside private directories. It never changes the process-wide umask, so Git checkout cannot accidentally inherit a backup-only permission policy. The final Docker stage explicitly normalizes application directories under `/app` to `0755` and files to `0644`, then imports the server as the actual `node` runtime user during the build. This does not change `/data` or mounted secrets under `/run/secrets`. Application code remains root-owned and is readable by the non-root runtime.
+
+If activation fails, the recovery directory now retains `candidate-image.txt`, `activation.log` and `failed-app.log` before replacing the failed container. The candidate image also has a `veltrix-app:candidate-<timestamp>` tag for isolated diagnosis. Logs are private recovery files; do not publish them without reviewing their contents. The previous image is still restored and checked as before.
+
+Regression checks: `python3 -m unittest discover -s tests -p test_update_permissions.py`. On POSIX this checks actual private-file permissions and umask preservation; on Windows it additionally guards against any attempt by the backup writer to modify umask, since Windows does not implement POSIX umask behavior. The non-root Docker import check runs on the deployment's real Linux image during build.

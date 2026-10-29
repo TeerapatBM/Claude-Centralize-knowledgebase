@@ -11,7 +11,10 @@ COPY --from=build /app/onprem-dist ./onprem-dist
 COPY --from=build /app/onprem ./onprem
 COPY --from=build /app/lib ./lib
 COPY package.json ./
-RUN mkdir -p /data && chown node:node /data
+RUN find /app -type d -exec chmod 0755 {} + \
+    && find /app -type f -exec chmod 0644 {} + \
+    && mkdir -p /data && chown node:node /data
 USER node
+RUN node --input-type=module -e "await import('./onprem/server.ts')"
 EXPOSE 3000
 CMD ["node", "onprem/server.ts"]

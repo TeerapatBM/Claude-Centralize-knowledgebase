@@ -21,6 +21,20 @@ class UpgradeError(Exception):
     pass
 
 
+def write_private(path, content):
+    """Create immutable recovery files privately, without changing process umask."""
+    data = content.encode('utf-8') if isinstance(content, str) else content
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, 'wb') as stream:
+        if hasattr(os, 'fchmod'):
+            os.fchmod(stream.fileno(), 0o600)
+        else:
+            os.chmod(path, 0o600)
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
 def run(args, cwd, label, check=True):
     """Capture output: never echo arbitrary Git, Docker, or provider text."""
     result = subprocess.run(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -117,33 +131,32 @@ def main():
         print('DRY RUN: no files, images, or containers changed. Repeat with --apply to upgrade.')
         return
 
-    os.umask(0o077)
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
     backup = Path.home() / 'commons-backups' / stamp
     backup.mkdir(parents=True, mode=0o700)
     backup.chmod(0o700)
-    (backup / 'HEAD').write_text(head + '\n')
-    (backup / 'working-tree.patch').write_bytes(git('diff', '--binary', 'HEAD', '--', *ACCEPTED).stdout)
+    write_private(backup / 'HEAD', head + '\n')
+    write_private(backup / 'working-tree.patch', git('diff', '--binary', 'HEAD', '--', *ACCEPTED).stdout)
     for name in ACCEPTED:
         dest = backup / 'local-files' / name
         dest.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        dest.write_bytes((source / name).read_bytes())
+        write_private(dest, (source / name).read_bytes())
     hashes = {}
     for path, content in protected.items():
         relative = path.relative_to(source)
         dest = backup / 'protected' / relative
         dest.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        dest.write_bytes(content)
+        write_private(dest, content)
         hashes[str(relative)] = hashlib.sha256(content).hexdigest()
-    (backup / 'protected-sha256.json').write_text(json.dumps(hashes, indent=2))
+    write_private(backup / 'protected-sha256.json', json.dumps(hashes, indent=2))
     backup_tag = 'veltrix-app:before-' + stamp.lower()
     docker('tag', old_image, backup_tag)
-    (backup / 'image.json').write_text(json.dumps({'oldImage': old_image, 'originalTag': original_tag, 'backupTag': backup_tag}, indent=2))
+    write_private(backup / 'image.json', json.dumps({'oldImage': old_image, 'originalTag': original_tag, 'backupTag': backup_tag}, indent=2))
     print('Private recovery backup: ' + str(backup))
     if dirty:
         git('stash', 'push', '-m', 'Veltrix pre-upgrade ' + stamp, '--', *dirty)
         stash = git('rev-parse', 'refs/stash').stdout.decode().strip()
-        (backup / 'stash-ref').write_text(stash + '\n')
+        write_private(backup / 'stash-ref', stash + '\n')
         print('Accepted local CPU edits saved in a retained Git stash; target includes their environment support.')
     git('merge', '--ff-only', target)
 
@@ -158,7 +171,7 @@ def main():
     dc('config', '--quiet')
     print('Building app image; build output is saved in the private backup directory.', flush=True)
     built = dc('build', 'app', check=False)
-    (backup / 'build.log').write_bytes(built.stdout + b'\n' + built.stderr)
+    write_private(backup / 'build.log', built.stdout + b'\n' + built.stderr)
     if built.returncode:
         docker('tag', old_image, original_tag)
         raise UpgradeError('App build failed; inspect build.log in the private backup. Existing container was not replaced; original image tag restored. Source remains at target; backup and stash retained.')
@@ -168,10 +181,21 @@ def main():
 
     try:
         unchanged()
-        dc('up', '-d', '--no-deps', '--no-build', '--wait', '--wait-timeout', '90', 'app')
+        candidate_image = docker('image', 'inspect', '--format', '{{.Id}}', original_tag).stdout.decode().strip()
+        write_private(backup / 'candidate-image.txt', candidate_image + '\n')
+        docker('tag', candidate_image, 'veltrix-app:candidate-' + stamp.lower())
+        activation = dc('up', '-d', '--no-deps', '--no-build', '--wait', '--wait-timeout', '90', 'app', check=False)
+        write_private(backup / 'activation.log', activation.stdout + b'\n' + activation.stderr)
+        if activation.returncode:
+            raise UpgradeError('App activation failed; see private activation logs.')
         health()
         unchanged()
     except (UpgradeError, OSError):
+        try:
+            failed_logs = dc('logs', '--no-color', '--tail', '120', 'app', check=False)
+            write_private(backup / 'failed-app.log', failed_logs.stdout + b'\n' + failed_logs.stderr)
+        except OSError:
+            pass
         try:
             docker('tag', old_image, original_tag)
             dc('up', '-d', '--no-deps', '--no-build', '--wait', '--wait-timeout', '90', 'app')
