@@ -4,4 +4,5 @@ import Home from '../../app/page';
 import '../../app/globals.css';
 import '../../app/workspace.css';
 import '../../app/refinement.css';
+import '../../app/veltrix.css';
 createRoot(document.getElementById('root')!).render(<Home/>);

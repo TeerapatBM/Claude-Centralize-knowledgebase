@@ -1,6 +1,6 @@
 ﻿'use client';
 import {useEffect,useRef,useState} from 'react';
-import {CheckCircle2,Copy,KeyRound,Link2,LoaderCircle,LogIn,LogOut,Palette,RefreshCw,Server,ShieldCheck,Users} from 'lucide-react';
+import {CheckCircle2,Copy,KeyRound,Link2,LoaderCircle,LogIn,LogOut,Palette,RefreshCw,Server,ShieldCheck,Users} from './veltrix-icons';
 import {AppearancePanel} from './workspace-ui';
 import {createRequestGate} from '../lib/request-state';
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+<defs>
+ <linearGradient id="a" x1="12" y1="8" x2="63" y2="81" gradientUnits="userSpaceOnUse"><stop stop-color="#e18bff"/><stop offset=".32" stop-color="#8f2aff"/><stop offset=".7" stop-color="#0889ff"/><stop offset="1" stop-color="#00efff"/></linearGradient>
+ <linearGradient id="b" x1="84" y1="20" x2="48" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#00eaff"/><stop offset=".3" stop-color="#145dff"/><stop offset="1" stop-color="#1511a4"/></linearGradient>
+ <linearGradient id="c" x1="19" y1="19" x2="55" y2="52" gradientUnits="userSpaceOnUse"><stop stop-color="#f9d4ff"/><stop offset=".42" stop-color="#8c55ff"/><stop offset="1" stop-color="#00e6ff"/></linearGradient>
+ <linearGradient id="d" x1="21" y1="41" x2="55" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#e888ff"/><stop offset=".45" stop-color="#706bff"/><stop offset="1" stop-color="#00e9ff"/></linearGradient>
+</defs>
+<path d="M48 58L68 26Q72 20 78 20H91L58 76Q53 85 45 83L34 72Z" fill="url(#b)" stroke="#197aff" stroke-width=".65"/>
+<path d="M7 10L29 10Q35 10 39 17L59 51L24 34Z" fill="url(#a)"/>
+<path d="M20 18H37Q41 18 44 23L59 51L33 38Q30 37 27 32Z" fill="url(#c)" stroke="#c6b1ff" stroke-width=".5"/>
+<path d="M18 37L37 40Q41 41 44 46L62 76Q55 89 44 83Q40 81 37 76Z" fill="url(#d)" stroke="#44dfff" stroke-width=".5"/>
+<path d="M18 37Q22 43 31 43H38M20 18H35Q41 18 44 23M69 25Q72 20 79 20H90" stroke="#e4faff" stroke-opacity=".85" stroke-width=".7" stroke-linecap="round"/>
+</svg>
